@@ -56,9 +56,10 @@ struct NavModelResult {
   const NavModelOutputPlans plans;
   const NavModelOutputDesirePrediction desire_pred;
   const NavModelOutputFeatures features;
+  std::array<float, 3> padding;
   float dsp_execution_time;
 };
-static_assert(sizeof(NavModelResult) == sizeof(NavModelOutputPlans) + sizeof(NavModelOutputDesirePrediction) + sizeof(NavModelOutputFeatures) + sizeof(float));
+static_assert(sizeof(NavModelResult) == sizeof(NavModelOutputPlans) + sizeof(NavModelOutputDesirePrediction) + sizeof(NavModelOutputFeatures) + sizeof(float) + sizeof(float)*3);
 
 constexpr int NAV_OUTPUT_SIZE = sizeof(NavModelResult) / sizeof(float);
 constexpr int NAV_NET_OUTPUT_SIZE = NAV_OUTPUT_SIZE - 1;

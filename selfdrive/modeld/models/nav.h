@@ -66,7 +66,7 @@ constexpr int NAV_NET_OUTPUT_SIZE = NAV_OUTPUT_SIZE - 1;
 
 struct NavModelState {
   RunModel *m;
-  uint8_t net_input_buf[NAV_INPUT_SIZE];
+  float net_input_buf[NAV_INPUT_SIZE];
   float output[NAV_OUTPUT_SIZE];
 };
 

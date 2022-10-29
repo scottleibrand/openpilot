@@ -26,10 +26,13 @@ void navmodel_init(NavModelState* s) {
 }
 
 NavModelResult* navmodel_eval_frame(NavModelState* s, VisionBuf* buf) {
-  memcpy(s->net_input_buf, buf->addr, NAV_INPUT_SIZE);
+  // memcpy(s->net_input_buf, buf->addr, NAV_INPUT_SIZE);
+  for (int i=0; i<NAV_INPUT_SIZE; i++) {
+    s->net_input_buf[i] = ((uint8_t*)buf->addr)[i];
+  }
 
   double t1 = millis_since_boot();
-  s->m->addImage((float*)s->net_input_buf, NAV_INPUT_SIZE/sizeof(float));
+  s->m->addImage(s->net_input_buf, NAV_INPUT_SIZE);
   s->m->execute();
   double t2 = millis_since_boot();
 

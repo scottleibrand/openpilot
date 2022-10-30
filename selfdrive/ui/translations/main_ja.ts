@@ -927,14 +927,6 @@ location set</source>
         <translation>openpilotによるアダプティブクルーズコントロールとレーンキーピングドライバーアシストを利用します。この機能を利用する際は、常に前方への注意が必要です。この設定を変更すると、車の電源が切れた時に反映されます。</translation>
     </message>
     <message>
-        <source>Enable Lane Departure Warnings</source>
-        <translation>車線逸脱警報機能を有効化</translation>
-    </message>
-    <message>
-        <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>時速31マイル（50km）を超えるスピードで走行中、ウインカーを作動させずに検出された車線ライン上に車両が触れた場合、手動で車線内に戻るように警告を行います。</translation>
-    </message>
-    <message>
         <source>Use Metric System</source>
         <translation>メートル法を使用</translation>
     </message>

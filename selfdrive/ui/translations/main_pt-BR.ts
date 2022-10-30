@@ -931,14 +931,6 @@ trabalho definido</translation>
         <translation>Use o sistema openpilot para controle de cruzeiro adaptativo e assistência ao motorista de manutenção de faixa. Sua atenção é necessária o tempo todo para usar esse recurso. A alteração desta configuração tem efeito quando o carro é desligado.</translation>
     </message>
     <message>
-        <source>Enable Lane Departure Warnings</source>
-        <translation>Ativar Avisos de Saída de Faixa</translation>
-    </message>
-    <message>
-        <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>Receba alertas para voltar para a pista se o seu veículo sair da faixa e a seta não tiver sido acionada previamente quando em velocidades superiores a 50 km/h.</translation>
-    </message>
-    <message>
         <source>Use Metric System</source>
         <translation>Usar Sistema Métrico</translation>
     </message>

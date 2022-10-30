@@ -927,14 +927,6 @@ location set</source>
         <translation>使用 openpilot 的主動式巡航和車道保持功能，開啟後您需要持續集中注意力，設定變更在重新啟動車輛後生效。</translation>
     </message>
     <message>
-        <source>Enable Lane Departure Warnings</source>
-        <translation>啟用車道偏離警告</translation>
-    </message>
-    <message>
-        <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>車速在時速 50 公里 (31 英里) 以上且未打方向燈的情況下，如果偵測到車輛駛出目前車道線時，發出車道偏離警告。</translation>
-    </message>
-    <message>
         <source>Use Metric System</source>
         <translation>使用公制單位</translation>
     </message>

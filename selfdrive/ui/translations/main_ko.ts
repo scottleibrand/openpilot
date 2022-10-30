@@ -927,14 +927,6 @@ location set</source>
         <translation>어댑티브 크루즈 컨트롤 및 차선 유지 운전자 보조를 위해 openpilot 시스템을 사용하십시오. 이 기능을 사용하려면 항상 주의를 기울여야 합니다. 설정변경은 장치 재부팅후 적용됩니다.</translation>
     </message>
     <message>
-        <source>Enable Lane Departure Warnings</source>
-        <translation>차선 이탈 경고 사용</translation>
-    </message>
-    <message>
-        <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>차량이 50km/h(31mph) 이상의 속도로 주행하는 동안 방향지시등 없이 감지된 차선 위를 주행할 경우 차선이탈 경고를 표시합니다.</translation>
-    </message>
-    <message>
         <source>Use Metric System</source>
         <translation>미터법 사용</translation>
     </message>

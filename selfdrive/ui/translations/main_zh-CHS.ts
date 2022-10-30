@@ -925,14 +925,6 @@ location set</source>
         <translation>使用openpilot进行自适应巡航和车道保持辅助。使用此功能时您必须时刻保持注意力。该设置的更改在熄火时生效。</translation>
     </message>
     <message>
-        <source>Enable Lane Departure Warnings</source>
-        <translation>启用车道偏离警告</translation>
-    </message>
-    <message>
-        <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>车速超过31mph（50km/h）时，若检测到车辆越过车道线且未打转向灯，系统将发出警告以提醒您返回车道。</translation>
-    </message>
-    <message>
         <source>Use Metric System</source>
         <translation>使用公制单位</translation>
     </message>

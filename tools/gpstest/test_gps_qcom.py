@@ -9,11 +9,10 @@ import cereal.messaging as messaging
 from selfdrive.manager.process_config import managed_processes
 
 
-def exec_mmcli(cmd):
-  cmd = "mmcli -m 0 " + cmd
+def at_cmd(cmd):
+  cmd = f"mmcli -m any --timeout 30 --command='{cmd}'"
   p = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
   return p.communicate()
-
 
 def wait_for_location(socket, timeout):
   while True:
@@ -40,37 +39,10 @@ class TestGPS(unittest.TestCase):
     if ublox_available:
       raise unittest.SkipTest
 
-  @unittest.skip("Skip cold start test due to time")
-  def test_quectel_cold_start(self):
-    # delete assistance data to enforce cold start for GNSS
-    # testing shows that this takes up to 20min
-
-    # invalidate supl setting, cannot be reset
-    _, err = exec_mmcli("--location-set-supl-server=unittest:1")
-
-    _, err = exec_mmcli("--command='AT+QGPSDEL=0'")
-    assert len(err) == 0, f"GPSDEL failed: {err}"
-
-    managed_processes['rawgpsd'].start()
-    start_time = time.monotonic()
-    glo = messaging.sub_sock("gpsLocation", timeout=0.1)
-
-    timeout = 10*60*25 # 25 minute
-    timedout = wait_for_location(glo, timeout)
-    managed_processes['rawgpsd'].stop()
-
-    assert timedout is False, "Waiting for location timed out (25min)!"
-
-    duration = time.monotonic() - start_time
-    assert duration < 50, f"Received GPS location {duration}!"
-
 
   def test_a_quectel_cold_start_AGPS(self):
-    _, err = exec_mmcli("--command='AT+QGPSDEL=0'")
+    _, err = at_cmd("AT+QGPSDEL=0")
     assert len(err) == 0, f"GPSDEL failed: {err}"
-
-    # setup AGPS
-    exec_mmcli("--location-set-supl-server=supl.google.com:7276")
 
     managed_processes['rawgpsd'].start()
     start_time = time.monotonic()
@@ -86,20 +58,16 @@ class TestGPS(unittest.TestCase):
     assert duration < 60, f"Received GPS location {duration}!"
 
 
-  def test_b_quectel_startup(self):
-
-    # setup AGPS
-    exec_mmcli("--location-set-supl-server=supl.google.com:7276")
-
+  def test_b_quectel_warmstart(self):
     managed_processes['rawgpsd'].start()
     start_time = time.monotonic()
     glo = messaging.sub_sock("gpsLocation", timeout=0.1)
 
-    timeout = 10*60*3 # 3 minute
+    timeout = 10*60 # 1 minute
     timedout = wait_for_location(glo, timeout)
     managed_processes['rawgpsd'].stop()
 
-    assert timedout is False, "Waiting for location timed out (3min)!"
+    assert timedout is False, "Waiting for location timed out (1min)!"
 
     duration = time.monotonic() - start_time
     assert duration < 60, f"Received GPS location {duration}!"

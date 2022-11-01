@@ -124,6 +124,7 @@ private:
   bool locationd_valid = false;
 
   MapInstructions* map_instructions;
+  bool map_loading_shown = false;
   MapNotification* map_notification;
   MapETA* map_eta;
 

@@ -40,9 +40,9 @@ MapWindow::MapWindow(const QMapboxGLSettings &settings) : m_settings(settings), 
 
   // Notification
   map_notification = new MapNotification(this);
-  map_notification->setFixedWidth(width()* 2);
+  map_notification->setFixedWidth(width()*2);
   map_notification->setFixedHeight(100);
-  map_notification->setVisible(true);
+  map_notification->setVisible(false);
 
   map_eta = new MapETA(this);
   QObject::connect(this, &MapWindow::ETAChanged, map_eta, &MapETA::updateETA);
@@ -182,6 +182,7 @@ void MapWindow::updateState(const UIState &s) {
   loaded_once = loaded_once || m_map->isFullyLoaded();
   if (!loaded_once) {
     map_instructions->showError(tr("Map Loading"));
+    map_loading_shown = true;
     return;
   }
 
@@ -198,6 +199,11 @@ void MapWindow::updateState(const UIState &s) {
     carPosSource["data"] = QVariant::fromValue<QMapbox::Feature>(feature1);
     m_map->updateSource("carPosSource", carPosSource);
   } else {
+    if (map_loading_shown) {
+      map_loading_shown = false;
+      map_instructions->noError();
+      map_instructions->hideIfNoError();
+    }
     map_notification->showNotification(tr("Waiting for GPS..."));
   }
 
@@ -559,12 +565,12 @@ void MapInstructions::hideIfNoError() {
 MapNotification::MapNotification(QWidget * parent) : QWidget(parent) {
   is_rhd = Params().getBool("IsRhdDetected");
   QHBoxLayout *main_layout = new QHBoxLayout(this);
-  main_layout->setContentsMargins(20, 0, 0, 0); /// left, top, right, bottom
 
   {
     QVBoxLayout *layout = new QVBoxLayout;
     primary = new QLabel;
     primary->setStyleSheet(R"(font-size: 60px;)");
+    primary->setContentsMargins(20, 0, 0, 0); // left, top, right, bottom
     layout->addWidget(primary);
     main_layout->addLayout(layout);
   }
@@ -573,13 +579,11 @@ MapNotification::MapNotification(QWidget * parent) : QWidget(parent) {
     * {
       color: white;
       font-family: "Inter";
+      background-color: rgba(0, 0, 0, 150);
     }
   )");
 
-  QPalette pal = palette();
-  pal.setColor(QPalette::Background, QColor(0, 0, 0, 150));
   setAutoFillBackground(true);
-  setPalette(pal);
 }
 
 void MapNotification::showNotification(QString msg) {

@@ -46,6 +46,22 @@ public slots:
   void updateInstructions(cereal::NavInstruction::Reader instruction);
 };
 
+class MapNotification : public QWidget {
+  Q_OBJECT
+
+private:
+  QLabel *primary;
+  QLabel *icon_01;
+  bool is_active = false;
+  bool is_rhd = false;
+
+public:
+  MapNotification(QWidget * parent=nullptr);
+  void showNotification(QString msg);
+  void hideNotification();
+};
+
+
 class MapETA : public QWidget {
   Q_OBJECT
 
@@ -108,6 +124,7 @@ private:
   bool locationd_valid = false;
 
   MapInstructions* map_instructions;
+  MapNotification* map_notification;
   MapETA* map_eta;
 
   void clearRoute();

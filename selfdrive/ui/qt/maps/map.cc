@@ -38,6 +38,12 @@ MapWindow::MapWindow(const QMapboxGLSettings &settings) : m_settings(settings), 
   map_instructions->setFixedWidth(width());
   map_instructions->setVisible(false);
 
+  // Notification
+  map_notification = new MapNotification(this);
+  map_notification->setFixedWidth(width()* 2);
+  map_notification->setFixedHeight(100);
+  map_notification->setVisible(true);
+
   map_eta = new MapETA(this);
   QObject::connect(this, &MapWindow::ETAChanged, map_eta, &MapETA::updateETA);
 
@@ -182,7 +188,7 @@ void MapWindow::updateState(const UIState &s) {
   initLayers();
 
   if (locationd_valid || laikad_valid) {
-    map_instructions->noError();
+    map_notification->hideNotification();
 
     // Update current location marker
     auto point = coordinate_to_collection(*last_position);
@@ -192,7 +198,7 @@ void MapWindow::updateState(const UIState &s) {
     carPosSource["data"] = QVariant::fromValue<QMapbox::Feature>(feature1);
     m_map->updateSource("carPosSource", carPosSource);
   } else {
-    map_instructions->showError(tr("Waiting for GPS"));
+    map_notification->showNotification(tr("Waiting for GPS..."));
   }
 
   if (pan_counter == 0) {
@@ -549,6 +555,47 @@ void MapInstructions::hideIfNoError() {
   }
 }
 
+
+MapNotification::MapNotification(QWidget * parent) : QWidget(parent) {
+  is_rhd = Params().getBool("IsRhdDetected");
+  QHBoxLayout *main_layout = new QHBoxLayout(this);
+  main_layout->setContentsMargins(20, 0, 0, 0); /// left, top, right, bottom
+
+  {
+    QVBoxLayout *layout = new QVBoxLayout;
+    primary = new QLabel;
+    primary->setStyleSheet(R"(font-size: 60px;)");
+    layout->addWidget(primary);
+    main_layout->addLayout(layout);
+  }
+
+  setStyleSheet(R"(
+    * {
+      color: white;
+      font-family: "Inter";
+    }
+  )");
+
+  QPalette pal = palette();
+  pal.setColor(QPalette::Background, QColor(0, 0, 0, 150));
+  setAutoFillBackground(true);
+  setPalette(pal);
+}
+
+void MapNotification::showNotification(QString msg) {
+  primary->setText(msg);
+  //icon_01->setVisible(false);
+  setVisible(true);
+  is_active = true;
+}
+
+void MapNotification::hideNotification() {
+  if (is_active) {
+    hide();
+    is_active = false;
+  }
+}
+
 MapETA::MapETA(QWidget * parent) : QWidget(parent) {
   QHBoxLayout *main_layout = new QHBoxLayout(this);
   main_layout->setContentsMargins(40, 25, 40, 25);
@@ -644,7 +691,6 @@ void MapETA::updateETA(float s, float s_typical, float d) {
   } else {
     color = "#25DA6E";
   }
-
   time->setStyleSheet(QString(R"(color: %1; font-weight:600;)").arg(color));
   time_unit->setStyleSheet(QString(R"(color: %1;)").arg(color));
 

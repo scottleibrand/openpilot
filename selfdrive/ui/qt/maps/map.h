@@ -57,8 +57,8 @@ private:
 
 public:
   MapNotification(QWidget * parent=nullptr);
-  void showNotification(QString msg);
-  void hideNotification();
+  void show(QString msg);
+  void hide();
 };
 
 

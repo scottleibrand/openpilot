@@ -189,7 +189,7 @@ void MapWindow::updateState(const UIState &s) {
   initLayers();
 
   if (locationd_valid || laikad_valid) {
-    map_notification->hideNotification();
+    map_notification->hide();
 
     // Update current location marker
     auto point = coordinate_to_collection(*last_position);
@@ -204,7 +204,7 @@ void MapWindow::updateState(const UIState &s) {
       map_instructions->noError();
       map_instructions->hideIfNoError();
     }
-    map_notification->showNotification(tr("Waiting for GPS..."));
+    map_notification->show(tr("Waiting for GPS..."));
   }
 
   if (pan_counter == 0) {
@@ -586,14 +586,13 @@ MapNotification::MapNotification(QWidget * parent) : QWidget(parent) {
   setAutoFillBackground(true);
 }
 
-void MapNotification::showNotification(QString msg) {
+void MapNotification::show(QString msg) {
   primary->setText(msg);
-  //icon_01->setVisible(false);
   setVisible(true);
   is_active = true;
 }
 
-void MapNotification::hideNotification() {
+void MapNotification::hide() {
   if (is_active) {
     hide();
     is_active = false;

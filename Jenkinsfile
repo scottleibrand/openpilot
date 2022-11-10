@@ -177,6 +177,7 @@ pipeline {
               ["build valgrind", "./tools/valgrind/build.sh"],
               ["check sensord", "timeout 5 ./tools/valgrind/valgrind-3.20.0/build/bin/valgrind --leak-check=full --log-file=output.log /data/openpilot/selfdrive/_sensord"],
               ["cat output.log"],
+              ["./tools/valgrind/checker.py"],
             ])
           }
         }

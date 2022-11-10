@@ -175,7 +175,7 @@ pipeline {
             phone_steps("tici-lsmc", [
               ["build openpilot", "cd selfdrive/manager && ./build.py"],
               ["build valgrind", "cd tools/valgrind && ./build.sh"],
-              ["check sensord", "timeout 5 ./tools/valgrind/valgrind-3.20.0/build/bin/valgrind --leak-check=full --log-file=output.log /data/openpilot/selfdrive/_sensord"],
+              ["check sensord", "timeout 5 ./tools/valgrind/valgrind-3.20.0/build/bin/valgrind --leak-check=full --log-file=output.log /data/openpilot/selfdrive/sensord/_sensord"],
               ["log output", "cat output.log"],
               ["check output", "./tools/valgrind/checker.py"],
             ])

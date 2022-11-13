@@ -17,7 +17,8 @@ MIN_MSGS_CHECK_MULTIPLEX = 10
 
 def check_multiplexed(first_bytes):
   # stupid simple, doesn't catch any msgs with jumps in ids
-  return len(set(np.diff(first_bytes))) == 1
+  aset = set(np.diff(first_bytes))
+  return len(aset) == 1 or aset == {1, -max(first_bytes)}
 
 
 def update(msgs, bus, dat, low_to_high, high_to_low, multiplexed, msg_count, quiet=False):

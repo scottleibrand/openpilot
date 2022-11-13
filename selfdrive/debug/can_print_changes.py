@@ -21,7 +21,7 @@ def check_multiplexed(first_bytes):
   return len(aset) == 1 or aset == {1, -max(first_bytes)}
 
 
-def update(msgs, bus, dat, low_to_high, high_to_low, multiplexed, msg_count, quiet=False):
+def update(msgs, bus, dat, low_to_high, high_to_low, multiplexed, quiet=False):
   for x in msgs:
     if x.which() != 'can':
       continue

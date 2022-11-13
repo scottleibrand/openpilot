@@ -167,8 +167,6 @@ def main() -> NoReturn:
   unpack_svpoly, _ = dict_unpacker(oemdre_svpoly_report, True)
   unpack_position, _ = dict_unpacker(position_report)
 
-  unpack_position, _ = dict_unpacker(position_report)
-
   # wait for ModemManager to come up
   cloudlog.warning("waiting for modem to come up")
   while True:
@@ -265,7 +263,6 @@ def main() -> NoReturn:
 
       msg = messaging.new_message('gpsLocation')
       gps = msg.gpsLocation
-      gps.flags = 1
       gps.latitude = report["t_DblFinalPosLatLon[0]"] * 180/math.pi
       gps.longitude = report["t_DblFinalPosLatLon[1]"] * 180/math.pi
       gps.altitude = report["q_FltFinalPosAlt"]
@@ -275,9 +272,20 @@ def main() -> NoReturn:
                                         1e-3*report['q_GpsFixTimeMs']).as_unix_timestamp()*1e3
       gps.source = log.GpsLocationData.SensorSource.qcomdiag
       gps.vNED = vNED
-      gps.verticalAccuracy = report["q_FltVdop"]
+
+      h_rel = report['u_HorizontalReliability']
+      v_rel = report['u_VerticalReliability']
+
+      gps.accuracy = report["q_FltHdop"] * (6 - h_rel)
+      gps.verticalAccuracy = report["q_FltVdop"] * (6 - v_rel)
+      gps.flags = 1 if (report["q_FltHdop"]!= 500 and report["q_FltVdop"] != 500) else 0
+
       gps.bearingAccuracyDeg = report["q_FltHeadingUncRad"] * 180/math.pi
       gps.speedAccuracy = math.sqrt(sum([x**2 for x in vNEDsigma]))
+
+      # print debug log
+      print(f"u_HorizontalReliability: {report['u_HorizontalReliability']}")
+      print(f"u_VerticalReliability:   {report['u_VerticalReliability']}")
 
       pm.send('gpsLocation', msg)
 

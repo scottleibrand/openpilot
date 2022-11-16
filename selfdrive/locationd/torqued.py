@@ -174,7 +174,6 @@ class TorqueEstimator:
     points = self.filtered_points.get_points(self.fit_points)
     # total least square solution as both x and y are noisy observations
     # this is empirically the slope of the hysteresis parallelogram as opposed to the line through the diagonals
-    points[:,0] = np.exp(3 * points[:,0]) - np.exp(-3 * points[:,0])
     try:
       _, _, v = np.linalg.svd(points, full_matrices=False)
       slope, offset = -v.T[0:2, 2] / v.T[2, 2]
@@ -236,7 +235,6 @@ class TorqueEstimator:
         self.update_params({'latAccelFactor': latAccelFactor, 'latAccelOffset': latAccelOffset, 'frictionCoefficient': friction_coeff})
         self.invalid_values_tracker = max(0.0, self.invalid_values_tracker - 0.5)
       else:
-        print(latAccelFactor, friction_coeff)
         cloudlog.exception("Live torque parameters are outside acceptable bounds.")
         liveTorqueParameters.liveValid = False
         self.invalid_values_tracker += 1.0

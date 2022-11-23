@@ -109,7 +109,7 @@ int PandaSpiHandle::bulk_read(unsigned char endpoint, unsigned char* data, int l
 int PandaSpiHandle::bulk_transfer(uint8_t endpoint, uint8_t *tx_data, uint16_t tx_len, uint8_t *rx_data, uint16_t rx_len) {
   std::lock_guard lk(hw_lock);
 
-  const int xfer_size = 0x40;
+  const int xfer_size = 0x40 * 15;
 
   int ret = 0;
   uint16_t length = (tx_data != NULL) ? tx_len : rx_len;

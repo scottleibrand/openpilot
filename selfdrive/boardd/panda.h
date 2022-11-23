@@ -25,6 +25,7 @@
 #define CANPACKET_MAX_SIZE  72U
 #define CANPACKET_REJECTED  (0xC0U)
 #define CANPACKET_RETURNED  (0x80U)
+#define CAN_TRANSACTION_MAGIC 0x43414E2FU
 
 struct __attribute__((packed)) can_header {
   uint8_t reserved : 1;

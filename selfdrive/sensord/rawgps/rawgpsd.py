@@ -25,11 +25,11 @@ from selfdrive.sensord.rawgps.structs import (dict_unpacker, position_report, re
 DEBUG = int(os.getenv("DEBUG", "0"))==1
 
 LOG_TYPES = [
-  LOG_GNSS_GPS_MEASUREMENT_REPORT,
-  LOG_GNSS_GLONASS_MEASUREMENT_REPORT,
+  #LOG_GNSS_GPS_MEASUREMENT_REPORT,
+  #LOG_GNSS_GLONASS_MEASUREMENT_REPORT,
   LOG_GNSS_OEMDRE_MEASUREMENT_REPORT,
-  LOG_GNSS_POSITION_REPORT,
-  LOG_GNSS_OEMDRE_SVPOLY_REPORT,
+  #LOG_GNSS_POSITION_REPORT,
+  #LOG_GNSS_OEMDRE_SVPOLY_REPORT,
 ]
 
 
@@ -187,14 +187,15 @@ def main() -> NoReturn:
     sys.exit(0)
   signal.signal(signal.SIGINT, cleanup)
   signal.signal(signal.SIGTERM, cleanup)
-
+  #cleanup(0, 0)
   setup_quectel(diag)
   cloudlog.warning("quectel setup done")
 
   pm = messaging.PubMaster(['qcomGnss', 'gpsLocation'])
-
+  recv_t_dr = 0
   while 1:
     opcode, payload = diag.recv()
+    recv_t = time.time()
     if opcode != DIAG_LOG_F:
       cloudlog.error(f"Unhandled opcode: {opcode}")
       continue
@@ -222,6 +223,16 @@ def main() -> NoReturn:
       report = gnss.drMeasurementReport
 
       dat = unpack_oemdre_meas(log_payload)
+      #print(dat)
+      print(time.monotonic(), dat["systemRtcTime"]/1000, time.monotonic()-(dat["systemRtcTime"]/1000))
+      if dat.get("seqNum") == 1:
+        recv_t_dr = recv_t
+      delay_t = -1
+      if dat.get("gpsWeek"):
+        gps_t = GPSTime(dat["gpsWeek"], dat["gpsMilliseconds"]*1e-3).as_unix_timestamp()
+        delay_t = recv_t_dr - gps_t
+      print(f"LOG_GNSS_OEMDRE_MEASUREMENT_REPORT source:", dat.get("source"))
+      print(f"LOG_GNSS_OEMDRE_MEASUREMENT_REPORT (seq={dat.get('seqNum')}/{dat.get('seqMax')}) (sats={dat.get('svCount')}) delay:", delay_t)
       for k,v in dat.items():
         if k in ["gpsTimeBias", "gpsClockTimeUncertainty"]:
           k += "Ms"
@@ -256,8 +267,11 @@ def main() -> NoReturn:
           else:
             setattr(sv, k, v)
       pm.send('qcomGnss', msg)
+      #if dat.get('seqNum') == 2:
+      #  time.sleep(2.)
     elif log_type == LOG_GNSS_POSITION_REPORT:
       report = unpack_position(log_payload)
+
       if report["u_PosSource"] != 2:
         continue
       vNED = [report["q_FltVelEnuMps[1]"], report["q_FltVelEnuMps[0]"], -report["q_FltVelEnuMps[2]"]]
@@ -278,7 +292,7 @@ def main() -> NoReturn:
       gps.verticalAccuracy = report["q_FltVdop"]
       gps.bearingAccuracyDeg = report["q_FltHeadingUncRad"] * 180/math.pi
       gps.speedAccuracy = math.sqrt(sum([x**2 for x in vNEDsigma]))
-
+      print("LOG_GNSS_POSITION_REPORT delay:", recv_t-gps.unixTimestampMillis/1e3)
       pm.send('gpsLocation', msg)
 
     elif log_type == LOG_GNSS_OEMDRE_SVPOLY_REPORT:

@@ -20,7 +20,7 @@ from selfdrive.sensord.rawgps.structs import (dict_unpacker, position_report, re
                                               oemdre_measurement_report, oemdre_measurement_report_sv, oemdre_svpoly_report,
                                               LOG_GNSS_GPS_MEASUREMENT_REPORT, LOG_GNSS_GLONASS_MEASUREMENT_REPORT,
                                               LOG_GNSS_POSITION_REPORT, LOG_GNSS_OEMDRE_MEASUREMENT_REPORT,
-                                              LOG_GNSS_OEMDRE_SVPOLY_REPORT)
+                                              LOG_GNSS_OEMDRE_SVPOLY_REPORT, LOG_GNSS_OEMDRSYNC)
 
 DEBUG = int(os.getenv("DEBUG", "0"))==1
 
@@ -30,6 +30,7 @@ LOG_TYPES = [
   LOG_GNSS_OEMDRE_MEASUREMENT_REPORT,
   #LOG_GNSS_POSITION_REPORT,
   #LOG_GNSS_OEMDRE_SVPOLY_REPORT,
+  LOG_GNSS_OEMDRSYNC,
 ]
 
 
@@ -114,7 +115,7 @@ def setup_quectel(diag: ModemDiag):
   send_recv(diag, DIAG_NV_WRITE_F, pack('<HI', NV_GNSS_OEM_FEATURE_MASK, 1))
   send_recv(diag, DIAG_NV_READ_F, pack('<H', NV_GNSS_OEM_FEATURE_MASK))
 
-  setup_logs(diag, LOG_TYPES)
+  #setup_logs(diag, LOG_TYPES)
 
   if gps_enabled():
     at_cmd("AT+QGPSEND")
@@ -135,9 +136,31 @@ def setup_quectel(diag: ModemDiag):
   CGPS_OEM_CONTROL = 202
   GPSDIAG_OEMFEATURE_DRE = 1
   GPSDIAG_OEM_DRE_ON = 1
+  GPSDIAG_OEM_DRE_OFF = 2
+
+  CGPS_OEM_DRSYNC_SET_CFG = 203
+  # gpsdiag_OemDrSyncSetConfig
+  result = send_recv(diag, DIAG_SUBSYS_CMD_F, pack('<BHBBBBIIIIIII',
+    DIAG_SUBSYS_GPS,           # Subsystem Id
+    CGPS_DIAG_PDAPI_CMD,       # Subsystem Command Code
+    CGPS_OEM_DRSYNC_SET_CFG,   # CGPS Command Code
+    0,                         # Version
+    1, # Flag to ignore TUNC
+    1, # Flag to arm the next pulse
+    0, # The phase in seconds of the pulse relative to GPS week
+    1, # The period of the pulse in seconds
+    1, # DR Sync mode
+    0, # Polarity of the sync pulse
+    0, # The time uncertainty below which the pulse generation will start
+    1000, # The time uncertainty above which the pulse generation will stop
+    0, # Bias of the pulse in nsec
+  ))
+  print("CGPS_OEM_DRSYNC_SET_CFG result:", result)
+
+  setup_logs(diag, LOG_TYPES)
 
   # gpsdiag_OemControlReqType
-  send_recv(diag, DIAG_SUBSYS_CMD_F, pack('<BHBBIIII',
+  result = send_recv(diag, DIAG_SUBSYS_CMD_F, pack('<BHBBIIII',
     DIAG_SUBSYS_GPS,           # Subsystem Id
     CGPS_DIAG_PDAPI_CMD,       # Subsystem Command Code
     CGPS_OEM_CONTROL,          # CGPS Command Code
@@ -146,6 +169,21 @@ def setup_quectel(diag: ModemDiag):
     GPSDIAG_OEM_DRE_ON,
     0,0
   ))
+  print("GPSDIAG_OEM_DRE_ON result:", result)
+
+  GPSDIAG_OEM_DRSYNC_ARM = 3
+  OEMFEATURE_DRSYNC = 2
+  # gpsdiag_OemControlReqType
+  result = send_recv(diag, DIAG_SUBSYS_CMD_F, pack('<BHBBIIII',
+    DIAG_SUBSYS_GPS,           # Subsystem Id
+    CGPS_DIAG_PDAPI_CMD,       # Subsystem Command Code
+    CGPS_OEM_CONTROL,          # CGPS Command Code
+    0,                         # Version
+    OEMFEATURE_DRSYNC,
+    GPSDIAG_OEM_DRSYNC_ARM,
+    0,0
+  ))
+  print("GPSDIAG_OEM_DRSYNC_ARM result:", result)
 
 def teardown_quectel(diag):
   at_cmd("AT+QGPSCFG=\"outport\",\"none\"")

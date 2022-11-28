@@ -85,7 +85,7 @@ class CarInterfaceBase(ABC):
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
-    return ACCEL_MIN, ACCEL_MAX
+    return CP.carControlParams.accelMin, CP.carControlParams.accelMax
 
   @staticmethod
   @abstractmethod
@@ -128,6 +128,10 @@ class CarInterfaceBase(ABC):
     # Car docs fields
     ret.maxLateralAccel = get_torque_params(candidate)['MAX_LAT_ACCEL_MEASURED']
     ret.autoResumeSng = True  # describes whether car can resume from a stop automatically
+
+    # Standard car control params
+    ret.carControlParams.accelMin = ACCEL_MIN
+    ret.carControlParams.accelMax = ACCEL_MAX
 
     # standard ALC params
     ret.steerControlType = car.CarParams.SteerControlType.torque

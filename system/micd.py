@@ -51,6 +51,9 @@ class Mic:
     self.measurements = np.concatenate((self.measurements, indata[:, 0]))
 
   def micd_thread(self, device=None):
+    if device is None:
+      device = "sysdefault"
+
     with sd.InputStream(device=device, channels=1, samplerate=44100, callback=self.callback) as stream:
       cloudlog.info(f"micd stream started: {stream.samplerate=} {stream.channels=} {stream.dtype=} {stream.device=}")
       while True:

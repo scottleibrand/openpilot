@@ -21,6 +21,7 @@ class Mic:
     self.sm = sm
     self.rk = Ratekeeper(RATE)
 
+    self.channels = 0
     self.measurements = np.array([])
     self.filter = FirstOrderFilter(1, 3, DT_MIC)
     self.last_alert_time = 0
@@ -34,15 +35,16 @@ class Mic:
 
     muted = time.time() - self.last_alert_time < MUTE_TIME
 
-    if not muted and len(self.measurements) > 0:
-      noise_level_raw = float(np.linalg.norm(self.measurements))
-      self.filter.update(noise_level_raw)
-    else:
-      noise_level_raw = 0
-    self.measurements = np.array([])
-
     msg = messaging.new_message('microphone')
     microphone = msg.microphone
+
+    if not muted and len(self.measurements) > 0:
+      noise_level_raw = [np.linalg.norm(channel) for channel in self.measurements.T]
+      self.filter.update(sum(noise_level_raw) / self.channels)
+    else:
+      noise_level_raw = [0] * self.channels
+    self.measurements = np.array([])
+
     microphone.ambientNoiseLevelRaw = noise_level_raw
     microphone.filteredAmbientNoiseLevel = self.filter.x
 
@@ -50,14 +52,15 @@ class Mic:
     self.rk.keep_time()
 
   def callback(self, indata, frames, time, status):
-    self.measurements = np.concatenate((self.measurements, indata[:, 0]))
+    self.measurements = np.concatenate((self.measurements, indata))
 
   def micd_thread(self, device=None):
     if device is None:
       device = "sysdefault"
 
-    with sd.InputStream(device=device, channels=1, samplerate=44100, callback=self.callback) as stream:
+    with sd.InputStream(device=device, samplerate=44100, callback=self.callback) as stream:
       cloudlog.info(f"micd stream started: {stream.samplerate=} {stream.channels=} {stream.dtype=} {stream.device=}")
+      self.channels = stream.channels
       while True:
         self.update()
 

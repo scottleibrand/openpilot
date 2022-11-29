@@ -12,7 +12,7 @@ from system.swaglog import cloudlog
 RATE = 10
 DT_MIC = 1. / RATE
 
-MUTE_TIME = 5
+MUTE_TIME = 1
 
 
 class Mic:

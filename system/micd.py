@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import time
-
 import sounddevice as sd
 import numpy as np
 
@@ -20,7 +18,7 @@ class Mic:
     self.rk = Ratekeeper(RATE)
 
     self.measurements = np.array([])
-    self.filter = FirstOrderFilter(1, 3, DT_MIC)
+    self.filter = FirstOrderFilter(1, 2, DT_MIC)
     self.muted = False
 
   def update(self):

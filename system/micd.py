@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import time
+
 import sounddevice as sd
 import numpy as np
 
@@ -10,6 +12,8 @@ from system.swaglog import cloudlog
 RATE = 10
 DT_MIC = 1. / RATE
 
+MUTE_TIME = 1
+
 
 class Mic:
   def __init__(self, pm, sm):
@@ -19,15 +23,18 @@ class Mic:
 
     self.measurements = np.array([])
     self.filter = FirstOrderFilter(1, 2, DT_MIC)
-    self.muted = False
+    self.last_alert_time = 0
 
   def update(self):
     self.sm.update(0)
 
     if self.sm.updated['controlsState']:
-      self.muted = self.sm['controlsState'].alertSound > 0
+      if self.sm['controlsState'].alertSound > 0:
+        self.last_alert_time = time.time()
 
-    if not self.muted and len(self.measurements) > 0:
+    muted = time.time() - self.last_alert_time < MUTE_TIME
+
+    if not muted and len(self.measurements) > 0:
       noise_level_raw = float(np.linalg.norm(self.measurements))
       self.filter.update(noise_level_raw)
     else:
